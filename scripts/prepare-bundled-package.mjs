@@ -383,6 +383,15 @@ export function prepareBundledPackage(sourceDir, destinationDir, { sourceRoot = 
     throw new Error(`${sourcePackage.name} does not declare bundled dependencies`);
   }
 
+  // Git-ref installs stage the server through this script, so its prepack hook
+  // (prepare:ui-dist) never runs and server/ui-dist does not exist yet.
+  if ((sourcePackage.files ?? []).includes("ui-dist") && !existsSync(resolve(sourceDir, "ui-dist"))) {
+    execFileSync("bash", [resolve(sourceRoot, "scripts/prepare-server-ui-dist.sh")], {
+      env: { ...process.env, PAPERCLIP_RELEASE_REUSE_UI_DIST: "1" },
+      stdio: "inherit",
+    });
+  }
+
   rmSync(destinationDir, { recursive: true, force: true });
   mkdirSync(destinationDir, { recursive: true });
   for (const entry of sourcePackage.files ?? []) {

@@ -409,6 +409,13 @@ export function prepareBundledPackage(sourceDir, destinationDir, { sourceRoot = 
 
   const deployedPackagePath = resolve(destinationDir, "package.json");
   const publishManifest = materializePublishManifest(sourcePackage);
+  // The staged directory is outside the pnpm workspace, so workspace-only pack
+  // hooks (e.g. server's prepack: pnpm run prepare:ui-dist && pnpm run build)
+  // cannot run there. release.sh packs with --ignore-scripts; git-ref installs
+  // call plain `npm pack`, so drop the hooks from the staged manifest.
+  if (publishManifest.scripts) {
+    for (const hook of ["prepack", "postpack", "prepare", "prepublishOnly"]) delete publishManifest.scripts[hook];
+  }
   const rootPackage = JSON.parse(readFileSync(resolve(sourceRoot, "package.json"), "utf8"));
   const profileData = bundledDependencies.includes("@agentclientprotocol/codex-acp")
     ? JSON.parse(readFileSync(resolve(sourceRoot, "packages/paperclip-runner/acpx-profiles.json"), "utf8")) : undefined;

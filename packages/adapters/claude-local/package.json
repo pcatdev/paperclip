@@ -50,7 +50,8 @@
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "probe:quota": "pnpm exec tsx src/cli/quota-probe.ts --json",
-    "probe:quota:raw": "pnpm exec tsx src/cli/quota-probe.ts --json --raw-cli"
+    "probe:quota:raw": "pnpm exec tsx src/cli/quota-probe.ts --json --raw-cli",
+    "prepack": "node -e \"const fs=require(\\\"fs\\\");if(!fs.existsSync(\\\"skills\\\"))fs.cpSync(\\\"../../../skills\\\",\\\"skills\\\",{recursive:true})\""
   },
   "dependencies": {
     "@agentclientprotocol/claude-agent-acp": "^0.73.0",
